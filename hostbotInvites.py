@@ -20,7 +20,7 @@ import wikitools
 import settings
 import os
 from random import choice
-import urllib2 as u2
+import urllib
 
 wiki = wikitools.Wiki(settings.apiurl)
 wiki.login(settings.username, settings.password)
@@ -84,7 +84,7 @@ def talkpageCheck(guest):
 	print guest_noSpace	
 	try:
 		tp_url = u'http://en.wikipedia.org/w/index.php?title=User_talk%%3A%s&action=raw' % guest_noSpace
-		usock = u2.urlopen(tp_url)
+		usock = urllib.urlopen(tp_url)
 		contents = usock.read()
 		contents = unicode(contents,'utf8')
 		usock.close()	
