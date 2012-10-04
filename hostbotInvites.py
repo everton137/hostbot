@@ -79,11 +79,8 @@ def encodeCheck(guest):
 # checks to see if the user has anything from the skiplist on their talk page
 def talkpageCheck(guest):
 	skip_test = False
-	guest_noSpace = guest.replace(" ","+")
-	guest_noSpace = guest.replace('"','%20')
-	print guest_noSpace	
 	try:
-		tp_url = u'http://en.wikipedia.org/w/index.php?title=User_talk%%3A%s&action=raw' % guest_noSpace
+		tp_url = u'http://en.wikipedia.org/w/index.php?title=User_talk%%3A%s&action=raw' % urllib.quote_plus(guest)
 		usock = urllib.urlopen(tp_url)
 		contents = usock.read()
 		contents = unicode(contents,'utf8')
