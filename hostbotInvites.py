@@ -115,37 +115,37 @@ def recordSkips(cursor):
 		conn.commit()
 				
 
-##main##
-rows = getUsernames(cursor)
+if __name__ == "__main__":
+    rows = getUsernames(cursor)
 
-for row in rows:
-	bad_encoding = False
-	has_template = False
-	guest = row[0]
-	print guest
-	bad_encoding = encodeCheck(guest)
-	if row[1] is not None and not bad_encoding:
-		has_template = talkpageCheck(guest)
-	else:
-		pass
-	if bad_encoding or has_template:
-		skip_list.append(guest)
-	else:		
-		guest = guest.replace('"','\\"')
-		guest = guest.replace("'","\\'")		
-		invite_list.append(guest)
+    for row in rows:
+        bad_encoding = False
+        has_template = False
+        guest = row[0]
+        print guest
+        bad_encoding = encodeCheck(guest)
+        if row[1] is not None and not bad_encoding:
+            has_template = talkpageCheck(guest)
+        else:
+            pass
+        if bad_encoding or has_template:
+            skip_list.append(guest)
+        else:		
+            guest = guest.replace('"','\\"')
+            guest = guest.replace("'","\\'")		
+            invite_list.append(guest)
 
-inviteGuests(cursor)
-recordSkips(cursor)	
+    inviteGuests(cursor)
+    recordSkips(cursor)	
 
-print ("invited: ", invite_list)
-print ("skipped: ", skip_list)	
+    print ("invited: ", invite_list)
+    print ("skipped: ", skip_list)	
 
-#update the invitee report with new invite statuses
-os.system("python ~/scripts/invitecheck.py")
+    #update the invitee report with new invite statuses
+    os.system("python ~/scripts/invitecheck.py")
 
-cursor.close()
-conn.close()
+    cursor.close()
+    conn.close()
 	
 
 
