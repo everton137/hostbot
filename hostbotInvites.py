@@ -19,7 +19,7 @@ import MySQLdb
 import wikitools
 import settings
 import os
-from random import choice
+import random
 import urllib
 
 wiki = wikitools.Wiki(settings.apiurl)
@@ -60,7 +60,7 @@ def getUsernames(cursor):
 
 # selects a host to personalize the invite from curHosts[]
 def select_host(curHosts):	
-	host = choice(curHosts)
+	host = random.choice(curHosts)
 	
 	return host
 
