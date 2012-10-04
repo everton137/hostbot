@@ -60,10 +60,7 @@ def getUsernames(cursor):
 
 # selects a host to personalize the invite from curHosts[]
 def select_host(curHosts):	
-	host = random.choice(curHosts)
-	
-	return host
-
+	return random.choice(curHosts)
 
 #checks for non-roman characters. I haven't found a good way to deal with these yet, so they're currently being skipped.
 def encodeCheck(guest):
