@@ -108,10 +108,8 @@ def inviteGuests(cursor):
 
 def recordSkips(cursor):
 	for skipped in skip_list:
-		skipped = skipped.replace('"','\"')
-		skipped = skipped.replace("'","\\'")	
 		cursor.execute('''update jmorgan.th_up_invitees set hostbot_skipped = 1 where user_name = "%s"
-		''' % skipped)		
+		''' % conn.escape_string(skipped))		
 		conn.commit()
 				
 
