@@ -44,7 +44,7 @@ curHosts = ['Rosiestep','Jtmorgan','SarahStierch','Ryan Vesey','Writ Keeper','Do
 skip_templates = ['uw-vandalism4', 'uw-socksuspect', 'Socksuspectnotice', '{{bots|deny=HostBot', '{{nobots', '{{bots|deny=all', 'Uw-socksuspect', 'sockpuppetry', 'Teahouse', 'friendly neighborhood', 'uw-cluebotwarning4', 'uw-vblock', 'uw-speedy4']
 
 
-def getUsernames(cursor):
+def getUsersToInvite(cursor):
 	cursor.execute('''
 	SELECT
 	user_name, user_talkpage
@@ -52,10 +52,7 @@ def getUsernames(cursor):
 	WHERE date(sample_date) = date(NOW())
 	AND invite_status = 0
 	''')
-	rows = cursor.fetchall()
-# 	print rows		
-	
-	return rows
+	return cursor.fetchall()
 
 
 # checks to see if the user has anything from the skiplist on their talk page
@@ -99,7 +96,7 @@ def recordSkips(cursor):
 				
 
 if __name__ == "__main__":
-    rows = getUsernames(cursor)
+    rows = getUsersToInvite(cursor)
 
     for row in rows:
         has_template = False
