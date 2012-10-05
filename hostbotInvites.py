@@ -58,11 +58,6 @@ def getUsernames(cursor):
 	return rows
 
 
-# selects a host to personalize the invite from curHosts[]
-def selectHost(curHosts):	
-	return random.choice(curHosts)
-
-#checks for non-roman characters. I haven't found a good way to deal with these yet, so they're currently being skipped.
 # checks to see if the user has anything from the skiplist on their talk page
 def talkpageCheck(guest):
 	skip_test = False
@@ -84,7 +79,7 @@ def talkpageCheck(guest):
 		
 def inviteGuests(cursor):
 	for invitee in invite_list:
-		host = selectHost(curHosts)
+		host = random.choice(curHosts)
 		invite_title = page_namespace + invitee
 		invite_page = wikitools.Page(wiki, invite_title)
 		invite_text = invite_template % (host, host, '|signature=~~~~')
