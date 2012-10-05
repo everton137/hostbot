@@ -63,16 +63,6 @@ def selectHost(curHosts):
 	return random.choice(curHosts)
 
 #checks for non-roman characters. I haven't found a good way to deal with these yet, so they're currently being skipped.
-def encodeCheck(guest):
-	encode_error = False
-	try:
-		guest = guest.encode('latin1')
-	except UnicodeDecodeError:
-		encode_error = True		
-	
-	return encode_error
-
-	
 # checks to see if the user has anything from the skiplist on their talk page
 def talkpageCheck(guest):
 	skip_test = False
@@ -117,20 +107,16 @@ if __name__ == "__main__":
     rows = getUsernames(cursor)
 
     for row in rows:
-        bad_encoding = False
         has_template = False
         guest = row[0]
         print guest
-        bad_encoding = encodeCheck(guest)
-        if row[1] is not None and not bad_encoding:
+        if row[1] is not None:
             has_template = talkpageCheck(guest)
         else:
             pass
-        if bad_encoding or has_template:
+        if has_template:
             skip_list.append(guest)
         else:		
-            guest = guest.replace('"','\\"')
-            guest = guest.replace("'","\\'")		
             invite_list.append(guest)
 
     inviteGuests(cursor)
