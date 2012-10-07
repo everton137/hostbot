@@ -59,8 +59,12 @@ def getUsersToInvite(cursor):
 ##FUNCTIONS##
 
 #gets a list of today's editors to invite
+<<<<<<< HEAD
 def getUsernames(cursor):
 >>>>>>> added custom user agent header; improved bot compliance; escaped reserved mysql chars
+=======
+def getUsersToInvite(cursor):
+>>>>>>> adding cdwn's function title changes back in… whoops
 	cursor.execute('''
 	SELECT
 	user_name, user_talkpage
@@ -194,7 +198,7 @@ if __name__ == "__main__":
 
 =======
 ##MAIN##
-rows = getUsernames(cursor)
+rows = getUsersToInvite(cursor)
 
 for row in rows:
 	bad_encoding = False
