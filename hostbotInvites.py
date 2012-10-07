@@ -19,15 +19,24 @@ import MySQLdb
 import wikitools
 import settings
 import os
+<<<<<<< HEAD
 import random
 import urllib
+=======
+from random import choice
+import urllib2 as u2
+import urllib
+import re
+>>>>>>> added custom user agent header; improved bot compliance; escaped reserved mysql chars
 
 wiki = wikitools.Wiki(settings.apiurl)
 wiki.login(settings.username, settings.password)
 conn = MySQLdb.connect(host = 'db42', db = 'jmorgan', read_default_file = '~/.my.cnf' )
 cursor = conn.cursor()
 
+##GLOBAL VARIABLES##
 page_namespace = u'User_talk:'
+headers = { 'User-Agent' : 'HostBot (http://github.com/jtmorgan/hostbot; jtmorgan25@gmail.com)' }
 
 # lists to track who received a hostbot invite
 invite_list = []
@@ -41,10 +50,17 @@ curHosts = ['Rosiestep','Jtmorgan','SarahStierch','Ryan Vesey','Writ Keeper','Do
 
 
 # strings associated with substituted templates that mean I should skip this guest
-skip_templates = ['uw-vandalism4', 'uw-socksuspect', 'Socksuspectnotice', '{{bots|deny=HostBot', '{{nobots', '{{bots|deny=all', 'Uw-socksuspect', 'sockpuppetry', 'Teahouse', 'friendly neighborhood', 'uw-cluebotwarning4', 'uw-vblock', 'uw-speedy4']
+skip_templates = ['uw-vandalism4', 'uw-socksuspect', 'Socksuspectnotice', 'Uw-socksuspect', 'sockpuppetry', 'Teahouse', 'uw-cluebotwarning4', 'uw-vblock', 'uw-speedy4']
 
 
+<<<<<<< HEAD
 def getUsersToInvite(cursor):
+=======
+##FUNCTIONS##
+
+#gets a list of today's editors to invite
+def getUsernames(cursor):
+>>>>>>> added custom user agent header; improved bot compliance; escaped reserved mysql chars
 	cursor.execute('''
 	SELECT
 	user_name, user_talkpage
@@ -52,6 +68,7 @@ def getUsersToInvite(cursor):
 	WHERE date(sample_date) = date(NOW())
 	AND invite_status = 0
 	''')
+<<<<<<< HEAD
 	return cursor.fetchall()
 
 
@@ -61,22 +78,67 @@ def talkpageCheck(guest):
 	try:
 		tp_url = u'http://en.wikipedia.org/w/index.php?title=User_talk%%3A%s&action=raw' % urllib.quote_plus(guest)
 		usock = urllib.urlopen(tp_url)
+=======
+	rows = cursor.fetchall()
+	
+	return rows
+
+
+# selects a host to personalize the invite from curHosts[]
+def select_host(curHosts):	
+	host = choice(curHosts)
+	
+	return host
+
+
+#checks for non-roman characters. I haven't found a good way to deal with these yet, so they're currently being skipped.
+def encodeCheck(guest):
+	encode_error = False
+	try:
+		guest = guest.encode('latin1')
+	except UnicodeDecodeError:
+		encode_error = True		
+	
+	return encode_error
+
+	
+# checks to see if the user's talkpage has any templates that would necessitate skipping
+def talkpageCheck(guest, header):
+	skip_test = False
+	guest = urllib.quote_plus(guest)
+	try:
+		tp_url = u'http://en.wikipedia.org/w/index.php?title=User_talk%%3A%s&action=raw' % guest
+		req = u2.Request(tp_url, None, header)
+		usock = u2.urlopen(req)
+>>>>>>> added custom user agent header; improved bot compliance; escaped reserved mysql chars
 		contents = usock.read()
 		contents = unicode(contents,'utf8')
 		usock.close()	
 		for template in skip_templates:
 			if template in contents:
 				skip_test = True
+		allowed = allow_bots(contents, settings.username)
+		if not allowed:
+			skip_test = True		
 	except:
 		print "something went wrong!"
 		skip_test = True	
 	
 	return skip_test
 
-		
+##checks for exclusion compliance, per http://en.wikipedia.org/wiki/Template:Bots
+def allow_bots(text, user):
+    return not re.search(r'\{\{(nobots|bots\|(allow=none|deny=.*?' + user + r'.*?|optout=all|deny=all))\}\}', text, flags=re.IGNORECASE)
+
+#invites guests		
 def inviteGuests(cursor):
 	for invitee in invite_list:
+<<<<<<< HEAD
 		host = random.choice(curHosts)
+=======
+		invitee = MySQLdb.escape_string(invitee)
+		host = select_host(curHosts)
+>>>>>>> added custom user agent header; improved bot compliance; escaped reserved mysql chars
 		invite_title = page_namespace + invitee
 		invite_page = wikitools.Page(wiki, invite_title)
 		invite_text = invite_template % (host, host, '|signature=~~~~')
@@ -87,14 +149,19 @@ def inviteGuests(cursor):
 		''' % conn.escape_string(invitee))		
 		conn.commit()			
 
-
+#records the users who were skipped
 def recordSkips(cursor):
 	for skipped in skip_list:
+<<<<<<< HEAD
+=======
+		skipped = MySQLdb.escape_string(skipped)
+>>>>>>> added custom user agent header; improved bot compliance; escaped reserved mysql chars
 		cursor.execute('''update jmorgan.th_up_invitees set hostbot_skipped = 1 where user_name = "%s"
 		''' % conn.escape_string(skipped))		
 		conn.commit()
 				
 
+<<<<<<< HEAD
 if __name__ == "__main__":
     rows = getUsersToInvite(cursor)
 
@@ -125,3 +192,34 @@ if __name__ == "__main__":
 	
 
 
+=======
+##MAIN##
+rows = getUsernames(cursor)
+
+for row in rows:
+	bad_encoding = False
+	has_template = False
+	guest = row[0]
+	print guest
+	bad_encoding = encodeCheck(guest)
+	if row[1] is not None and not bad_encoding:
+		has_template = talkpageCheck(guest, headers)
+	else:
+		pass
+	if bad_encoding or has_template:
+		skip_list.append(guest)
+	else:		
+		invite_list.append(guest)
+
+inviteGuests(cursor)
+recordSkips(cursor)	
+
+print ("invited: ", invite_list)
+print ("skipped: ", skip_list)	
+
+#updates Wikipedia:Teahouse/Hosts/Database_reports
+os.system("python ~/scripts/invitecheck.py")
+
+cursor.close()
+conn.close()
+>>>>>>> added custom user agent header; improved bot compliance; escaped reserved mysql chars
