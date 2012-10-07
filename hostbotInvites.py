@@ -19,15 +19,10 @@ import MySQLdb
 import wikitools
 import settings
 import os
-<<<<<<< HEAD
-import random
-import urllib
-=======
 from random import choice
 import urllib2 as u2
 import urllib
 import re
->>>>>>> added custom user agent header; improved bot compliance; escaped reserved mysql chars
 
 wiki = wikitools.Wiki(settings.apiurl)
 wiki.login(settings.username, settings.password)
@@ -53,18 +48,10 @@ curHosts = ['Rosiestep','Jtmorgan','SarahStierch','Ryan Vesey','Writ Keeper','Do
 skip_templates = ['uw-vandalism4', 'uw-socksuspect', 'Socksuspectnotice', 'Uw-socksuspect', 'sockpuppetry', 'Teahouse', 'uw-cluebotwarning4', 'uw-vblock', 'uw-speedy4']
 
 
-<<<<<<< HEAD
-def getUsersToInvite(cursor):
-=======
 ##FUNCTIONS##
 
 #gets a list of today's editors to invite
-<<<<<<< HEAD
 def getUsernames(cursor):
->>>>>>> added custom user agent header; improved bot compliance; escaped reserved mysql chars
-=======
-def getUsersToInvite(cursor):
->>>>>>> adding cdwn's function title changes back in… whoops
 	cursor.execute('''
 	SELECT
 	user_name, user_talkpage
@@ -72,17 +59,6 @@ def getUsersToInvite(cursor):
 	WHERE date(sample_date) = date(NOW())
 	AND invite_status = 0
 	''')
-<<<<<<< HEAD
-	return cursor.fetchall()
-
-
-# checks to see if the user has anything from the skiplist on their talk page
-def talkpageCheck(guest):
-	skip_test = False
-	try:
-		tp_url = u'http://en.wikipedia.org/w/index.php?title=User_talk%%3A%s&action=raw' % urllib.quote_plus(guest)
-		usock = urllib.urlopen(tp_url)
-=======
 	rows = cursor.fetchall()
 	
 	return rows
@@ -114,7 +90,6 @@ def talkpageCheck(guest, header):
 		tp_url = u'http://en.wikipedia.org/w/index.php?title=User_talk%%3A%s&action=raw' % guest
 		req = u2.Request(tp_url, None, header)
 		usock = u2.urlopen(req)
->>>>>>> added custom user agent header; improved bot compliance; escaped reserved mysql chars
 		contents = usock.read()
 		contents = unicode(contents,'utf8')
 		usock.close()	
@@ -137,12 +112,8 @@ def allow_bots(text, user):
 #invites guests		
 def inviteGuests(cursor):
 	for invitee in invite_list:
-<<<<<<< HEAD
-		host = random.choice(curHosts)
-=======
 		invitee = MySQLdb.escape_string(invitee)
 		host = select_host(curHosts)
->>>>>>> added custom user agent header; improved bot compliance; escaped reserved mysql chars
 		invite_title = page_namespace + invitee
 		invite_page = wikitools.Page(wiki, invite_title)
 		invite_text = invite_template % (host, host, '|signature=~~~~')
@@ -150,55 +121,20 @@ def inviteGuests(cursor):
 		invite_page.edit(invite_text, section="new", sectiontitle="== {{subst:PAGENAME}}, you are invited to the Teahouse ==", summary="Automatic invitation to visit [[WP:Teahouse]] sent by [[User:HostBot|HostBot]]", bot=1)	
 		print invite_text
 		cursor.execute('''update jmorgan.th_up_invitees set invite_status = 1, hostbot_invite = 1 where user_name = "%s"
-		''' % conn.escape_string(invitee))		
+		''' % invitee)		
 		conn.commit()			
 
 #records the users who were skipped
 def recordSkips(cursor):
 	for skipped in skip_list:
-<<<<<<< HEAD
-=======
 		skipped = MySQLdb.escape_string(skipped)
->>>>>>> added custom user agent header; improved bot compliance; escaped reserved mysql chars
 		cursor.execute('''update jmorgan.th_up_invitees set hostbot_skipped = 1 where user_name = "%s"
-		''' % conn.escape_string(skipped))		
+		''' % skipped)		
 		conn.commit()
 				
 
-<<<<<<< HEAD
-if __name__ == "__main__":
-    rows = getUsersToInvite(cursor)
-
-    for row in rows:
-        has_template = False
-        guest = row[0]
-        print guest
-        if row[1] is not None:
-            has_template = talkpageCheck(guest)
-        else:
-            pass
-        if has_template:
-            skip_list.append(guest)
-        else:		
-            invite_list.append(guest)
-
-    inviteGuests(cursor)
-    recordSkips(cursor)	
-
-    print ("invited: ", invite_list)
-    print ("skipped: ", skip_list)	
-
-    #update the invitee report with new invite statuses
-    os.system("python ~/scripts/invitecheck.py")
-
-    cursor.close()
-    conn.close()
-	
-
-
-=======
 ##MAIN##
-rows = getUsersToInvite(cursor)
+rows = getUsernames(cursor)
 
 for row in rows:
 	bad_encoding = False
@@ -226,4 +162,3 @@ os.system("python ~/scripts/invitecheck.py")
 
 cursor.close()
 conn.close()
->>>>>>> added custom user agent header; improved bot compliance; escaped reserved mysql chars
