@@ -121,7 +121,7 @@ def inviteGuests(cursor):
 		invite_page.edit(invite_text, section="new", sectiontitle="== {{subst:PAGENAME}}, you are invited to the Teahouse ==", summary="Automatic invitation to visit [[WP:Teahouse]] sent by [[User:HostBot|HostBot]]", bot=1)	
 		print invite_text
 		cursor.execute('''update jmorgan.th_up_invitees set invite_status = 1, hostbot_invite = 1 where user_name = "%s"
-		''' % invitee)		
+		''', (invitee,))
 		conn.commit()			
 
 #records the users who were skipped
@@ -129,7 +129,7 @@ def recordSkips(cursor):
 	for skipped in skip_list:
 		skipped = MySQLdb.escape_string(skipped)
 		cursor.execute('''update jmorgan.th_up_invitees set hostbot_skipped = 1 where user_name = "%s"
-		''' % skipped)		
+		''' , (skipped,))
 		conn.commit()
 				
 
