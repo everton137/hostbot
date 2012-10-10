@@ -85,14 +85,9 @@ def encodeCheck(guest):
 # checks to see if the user's talkpage has any templates that would necessitate skipping
 def talkpageCheck(guest, header):
 	skip_test = False
-	guest = urllib.quote_plus(guest)
 	try:
-		tp_url = u'http://en.wikipedia.org/w/index.php?title=User_talk%%3A%s&action=raw' % guest
-		req = u2.Request(tp_url, None, header)
-		usock = u2.urlopen(req)
-		contents = usock.read()
-		contents = unicode(contents,'utf8')
-		usock.close()	
+		tp = wikitools.Page(wiki, 'User talk:'+guest)
+		contents = unicode(tp.getWikiText(), 'utf8')
 		for template in skip_templates:
 			if template in contents:
 				skip_test = True
