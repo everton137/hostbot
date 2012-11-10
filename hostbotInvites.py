@@ -1,17 +1,17 @@
 #! /usr/bin/env python
 
 # Copyright 2012 Jtmorgan
- 
+
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
- 
+
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
- 
+
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -60,14 +60,14 @@ def getUsernames(cursor):
 	AND invite_status = 0
 	''')
 	rows = cursor.fetchall()
-	
+
 	return rows
 
 
 # selects a host to personalize the invite from curHosts[]
 def select_host(curHosts):	
 	host = choice(curHosts)
-	
+
 	return host
 
 
@@ -78,21 +78,16 @@ def encodeCheck(guest):
 		guest = guest.encode('latin1')
 	except UnicodeDecodeError:
 		encode_error = True		
-	
+
 	return encode_error
 
-	
+
 # checks to see if the user's talkpage has any templates that would necessitate skipping
 def talkpageCheck(guest, header):
 	skip_test = False
-	guest = urllib.quote_plus(guest)
 	try:
-		tp_url = u'http://en.wikipedia.org/w/index.php?title=User_talk%%3A%s&action=raw' % guest
-		req = u2.Request(tp_url, None, header)
-		usock = u2.urlopen(req)
-		contents = usock.read()
-		contents = unicode(contents,'utf8')
-		usock.close()	
+		tp = wikitools.Page(wiki, 'User talk:'+guest)
+		contents = unicode(tp.getWikiText(), 'utf8')
 		for template in skip_templates:
 			if template in contents:
 				skip_test = True
@@ -102,12 +97,12 @@ def talkpageCheck(guest, header):
 	except:
 		print "something went wrong!"
 		skip_test = True	
-	
+
 	return skip_test
 
 ##checks for exclusion compliance, per http://en.wikipedia.org/wiki/Template:Bots
 def allow_bots(text, user):
-    return not re.search(r'\{\{(nobots|bots\|(allow=none|deny=.*?' + user + r'.*?|optout=all|deny=all))\}\}', text, flags=re.IGNORECASE)
+	return not re.search(r'\{\{(nobots|bots\|(allow=none|deny=.*?' + user + r'.*?|optout=all|deny=all))\}\}', text, flags=re.IGNORECASE)
 
 #invites guests		
 def inviteGuests(cursor):
@@ -121,7 +116,7 @@ def inviteGuests(cursor):
 		invite_page.edit(invite_text, section="new", sectiontitle="== {{subst:PAGENAME}}, you are invited to the Teahouse ==", summary="Automatic invitation to visit [[WP:Teahouse]] sent by [[User:HostBot|HostBot]]", bot=1)	
 		print invite_text
 		cursor.execute('''update jmorgan.th_up_invitees set invite_status = 1, hostbot_invite = 1 where user_name = "%s"
-		''' % invitee)		
+		''', (invitee,))
 		conn.commit()			
 
 #records the users who were skipped
@@ -129,9 +124,9 @@ def recordSkips(cursor):
 	for skipped in skip_list:
 		skipped = MySQLdb.escape_string(skipped)
 		cursor.execute('''update jmorgan.th_up_invitees set hostbot_skipped = 1 where user_name = "%s"
-		''' % skipped)		
+		''' , (skipped,))
 		conn.commit()
-				
+
 
 ##MAIN##
 rows = getUsernames(cursor)
