@@ -26,7 +26,7 @@ import re
 
 wiki = wikitools.Wiki(settings.apiurl)
 wiki.login(settings.username, settings.password)
-conn = MySQLdb.connect(host = 'db42', db = 'jmorgan', read_default_file = '~/.my.cnf' )
+conn = MySQLdb.connect(host = 'db67.pmtpa.wmnet', db = 'jmorgan', read_default_file = '~/.my.cnf', use_unicode=1, charset="utf8" )
 cursor = conn.cursor()
 
 ##GLOBAL VARIABLES##
@@ -71,17 +71,6 @@ def select_host(curHosts):
 	return host
 
 
-#checks for non-roman characters. I haven't found a good way to deal with these yet, so they're currently being skipped.
-def encodeCheck(guest):
-	encode_error = False
-	try:
-		guest = guest.encode('latin1')
-	except UnicodeDecodeError:
-		encode_error = True		
-
-	return encode_error
-
-
 # checks to see if the user's talkpage has any templates that would necessitate skipping
 def talkpageCheck(guest, header):
 	skip_test = False
@@ -95,7 +84,6 @@ def talkpageCheck(guest, header):
 		if not allowed:
 			skip_test = True		
 	except:
-		print "something went wrong!"
 		skip_test = True	
 
 	return skip_test
@@ -114,17 +102,14 @@ def inviteGuests(cursor):
 		invite_text = invite_template % (host, host, '|signature=~~~~')
 		invite_text = invite_text.encode('utf-8')
 		invite_page.edit(invite_text, section="new", sectiontitle="== {{subst:PAGENAME}}, you are invited to the Teahouse ==", summary="Automatic invitation to visit [[WP:Teahouse]] sent by [[User:HostBot|HostBot]]", bot=1)	
-		print invite_text
-		cursor.execute('''update jmorgan.th_up_invitees set invite_status = 1, hostbot_invite = 1 where user_name = "%s"
-		''', (invitee,))
+		cursor.execute('''update jmorgan.th_up_invitees set invite_status = 1, hostbot_invite = 1, hostbot_personal = 1 where user_name = %s ''', (invitee,))
 		conn.commit()			
 
 #records the users who were skipped
 def recordSkips(cursor):
 	for skipped in skip_list:
 		skipped = MySQLdb.escape_string(skipped)
-		cursor.execute('''update jmorgan.th_up_invitees set hostbot_skipped = 1 where user_name = "%s"
-		''' , (skipped,))
+		cursor.execute('''update jmorgan.th_up_invitees set hostbot_skipped = 1 where user_name = %s ''' , (skipped,))
 		conn.commit()
 
 
@@ -132,16 +117,13 @@ def recordSkips(cursor):
 rows = getUsernames(cursor)
 
 for row in rows:
-	bad_encoding = False
 	has_template = False
 	guest = row[0]
-	print guest
-	bad_encoding = encodeCheck(guest)
-	if row[1] is not None and not bad_encoding:
+	if row[1] is not None: # and not bad_encoding
 		has_template = talkpageCheck(guest, headers)
 	else:
 		pass
-	if bad_encoding or has_template:
+	if has_template:
 		skip_list.append(guest)
 	else:		
 		invite_list.append(guest)
@@ -149,11 +131,11 @@ for row in rows:
 inviteGuests(cursor)
 recordSkips(cursor)	
 
-print ("invited: ", invite_list)
-print ("skipped: ", skip_list)	
+# print ("invited: ", invite_list)
+# print ("skipped: ", skip_list)	
 
 #updates Wikipedia:Teahouse/Hosts/Database_reports
-os.system("python ~/scripts/invitecheck.py")
+os.system("python ~/teahouse/hostbot_scripts/invitecheck.py")
 
 cursor.close()
 conn.close()
