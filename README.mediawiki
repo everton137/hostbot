@@ -1,7 +1,52 @@
-== /Automated_metrics ==
+= HostBot: your robot friend =
+[http://en.wikipedia.org/wiki/User:HostBot HostBot] is a set of Python scripts that performs repetitive tasks on and for the [http://en.wikipedia.org/wiki/Wikipedia:Teahouse Wikipedia Teahouse]. HostBot is run by [http://en.wikipedia.org/wiki/User:Jtmorgan Jonathan Morgan], and is currently hosted by the Wikimedia Foundation. Hostbot makes extensive use of the [http://www.mediawiki.org/wiki/API:Main_page MediaWiki API], the [http://code.google.com/p/python-wikitools/ wikitools] Python framework and may in future draw on [http://www.mediawiki.org/wiki/Manual:Pywikipediabot pywikipediabot] as well, although it does not currently do so.
 
-=== Database tables ===
-Several of the automated metrics scripts use a set of custom tables that track various activity metrics on enwp.org/WP:Teahouse. 
+== /new_editor_invites ==
+These scripts maintain a database of new editors who meet the basic criteria for invitation to the Teahouse, and invites ~100 editors who meet these criteria on a daily basis. You can read more about the inclusion criteria [http://en.wikipedia.org/wiki/Wikipedia:Teahouse/Hosts/Database_reports/Automated_invites here], and you can see a daily report of the users invited [http://en.wikipedia.org/wiki/Wikipedia:Teahouse/Hosts/Database_reports/Automated_invites here].
+
+=== Scripts ===
+* <code>teahouseInvitees.py</code> : Grabs the daily sample of new editors to invite.
+* <code>inviteCheck.py</code> : Checks to see whether these editors have been invited to the Teahouse already by someone other than HostBot.
+* <code>hostbotInvites.py</code> : Invites all editors from today's sample who meet the invite criteria.
+
+=== MYSQL tables ===
+These scripts use several of the standard Wikipedia database tables (enwiki.revision, enwiki.recentchanges, enwiki.user... maybe a couple others) which are available to account holders on toolserver.org. 
+
+They also make use of a custom tables created to keep track of who gets invited to the Teahouse, and whether they continue editing Wikipedia (for purposes of quantifying the impact of Teahouse participation on new editor retention).
+
+;th_up_invitees
+The master list of invitees. Not all of these fields are strictly necessary.
+
+ +-------------------+------------------+------+-----+---------+----------------+
+ | Field             | Type             | Null | Key | Default | Extra          |
+ +-------------------+------------------+------+-----+---------+----------------+
+ | id                | int(11) unsigned | NO   | PRI | NULL    | auto_increment |
+ | user_id           | int(11)          | YES  | UNI | NULL    |                |
+ | user_name         | varbinary(200)   | YES  |     | NULL    |                |
+ | user_registration | varbinary(14)    | YES  |     | NULL    |                |
+ | user_editcount    | int(11)          | YES  |     | NULL    |                |
+ | email_status      | varbinary(14)    | YES  |     | NULL    |                |
+ | edit_sessions     | int(11)          | YES  |     | NULL    |                |
+ | sample_group      | varbinary(14)    | YES  |     | NULL    |                |
+ | sample_date       | datetime         | YES  |     | NULL    |                |
+ | sample_type       | varbinary(11)    | YES  |     | NULL    |                |
+ | invite_status     | tinyint(1)       | YES  |     | NULL    |                |
+ | hostbot_invite    | tinyint(1)       | YES  |     | NULL    |                |
+ | hostbot_personal  | tinyint(1)       | YES  |     | NULL    |                |
+ | hostbot_skipped   | tinyint(1)       | YES  |     | NULL    |                |
+ | user_talkpage     | int(11)          | YES  |     | NULL    |                |
+ +-------------------+------------------+------+-----+---------+----------------+
+
+== /monthly_metrics ==
+These scripts generate automated metrics about Teahouse activity and posts a simple metrics report to enwp.org/WP:Teahouse/Host_lounge/Metrics. Currently set up to run on the first of every month.  
+
+=== Scripts ===
+# * <code>teahouseInvitees.py</code> : Grabs the daily sample of new editors to invite.
+# * <code>inviteCheck.py</code> : Checks to see whether these editors have been invited to the Teahouse already by someone other than HostBot.
+# * <code>hostbotInvites.py</code> : Invites all editors from today's sample who meet the invite criteria.
+
+=== MYSQL tables ===
+These scripts use several of the standard Wikipedia database tables (enwiki.revision, enwiki.recentchanges, enwiki.user... maybe a couple others) which are available to account holders on toolserver.org. Several of the automated metrics scripts also use a set of custom tables that track various activity metrics on enwp.org/WP:Teahouse. 
 
 ;th_up_questions
 
@@ -23,6 +68,7 @@ This table logs questions that have been asked on the Teahouse Q&A board (enwp.o
  | answers            | int(11)         | YES  |     | NULL    |       |
  | first_answer_date  | datetime        | YES  |     | NULL    |       |
  +--------------------+-----------------+------+-----+---------+-------+
+
 	
 ;th_up_hosts
 
@@ -47,9 +93,22 @@ This table logs the activity of Teahouse hosts on WP:Teahouse and its subpages, 
  | colleague      | tinyint(1)       | YES  |     | NULL    |                |
  | has_profile    | tinyint(1)       | YES  |     | NULL    |                |
  +----------------+------------------+------+-----+---------+----------------+	
+
 	
 ;th_up_profiles
 
 :''Used by:'' <code>profiles_section.py</code>
 
 This table logs the activity of Teahouse hosts on WP:Teahouse and its subpages, as well as the location of their host profile.	
+
+ +---------------+-----------------+------+-----+---------+-------+
+ | Field         | Type            | Null | Key | Default | Extra |
+ +---------------+-----------------+------+-----+---------+-------+
+ | rev_id        | int(8) unsigned | NO   | PRI | 0       |       |
+ | rev_user      | int(5) unsigned | NO   |     | 0       |       |
+ | rev_user_text | varbinary(255)  | NO   | UNI |         |       |
+ | rev_timestamp | varbinary(14)   | NO   |     |         |       |
+ | rev_comment   | varbinary(255)  | YES  |     | NULL    |       |
+ | post_date     | datetime        | YES  |     | NULL    |       |
+ | week          | int(11)         | YES  |     | NULL    |       |
+ +---------------+-----------------+------+-----+---------+-------+
