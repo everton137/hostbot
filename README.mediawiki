@@ -9,20 +9,20 @@ Several of the automated metrics scripts use a set of custom tables that track v
 
 This table logs questions that have been asked on the Teahouse Q&A board (enwp.org/WP:Teahouse/Questions).
 
-	 +--------------------+-----------------+------+-----+---------+-------+
-	| Field              | Type            | Null | Key | Default | Extra |
-	+--------------------+-----------------+------+-----+---------+-------+
-	| rev_id             | int(8) unsigned | NO   | PRI | 0       |       |
-	| rev_user           | int(5) unsigned | NO   |     | 0       |       |
-	| rev_user_text      | varbinary(255)  | NO   |     |         |       |
-	| rev_timestamp      | varbinary(14)   | NO   |     |         |       |
-	| rev_comment        | varbinary(255)  | YES  |     | NULL    |       |
-	| post_date          | datetime        | YES  |     | NULL    |       |
-	| week               | int(11)         | YES  |     | NULL    |       |
-	| questioner_replies | int(11)         | YES  |     | NULL    |       |
-	| answers            | int(11)         | YES  |     | NULL    |       |
-	| first_answer_date  | datetime        | YES  |     | NULL    |       |
-	+--------------------+-----------------+------+-----+---------+-------+
+ +--------------------+-----------------+------+-----+---------+-------+
+| Field              | Type            | Null | Key | Default | Extra |
++--------------------+-----------------+------+-----+---------+-------+
+| rev_id             | int(8) unsigned | NO   | PRI | 0       |       |
+| rev_user           | int(5) unsigned | NO   |     | 0       |       |
+| rev_user_text      | varbinary(255)  | NO   |     |         |       |
+| rev_timestamp      | varbinary(14)   | NO   |     |         |       |
+| rev_comment        | varbinary(255)  | YES  |     | NULL    |       |
+| post_date          | datetime        | YES  |     | NULL    |       |
+| week               | int(11)         | YES  |     | NULL    |       |
+| questioner_replies | int(11)         | YES  |     | NULL    |       |
+| answers            | int(11)         | YES  |     | NULL    |       |
+| first_answer_date  | datetime        | YES  |     | NULL    |       |
++--------------------+-----------------+------+-----+---------+-------+
 	
 ;th_up_hosts
 
@@ -30,23 +30,23 @@ This table logs questions that have been asked on the Teahouse Q&A board (enwp.o
 
 This table logs the activity of Teahouse hosts on WP:Teahouse and its subpages, as well as the location of their host profile.
 
-	+----------------+------------------+------+-----+---------+----------------+
-	| Field          | Type             | Null | Key | Default | Extra          |
-	+----------------+------------------+------+-----+---------+----------------+
-	| id             | int(11) unsigned | NO   | PRI | NULL    | auto_increment |
-	| user_name      | varbinary(255)   | YES  | UNI | NULL    |                |
-	| user_id        | int(11)          | YES  | UNI | NULL    |                |
-	| user_talkpage  | int(11)          | YES  |     | NULL    |                |
-	| join_date      | datetime         | YES  |     | NULL    |                |
-	| last_move_date | datetime         | YES  |     | NULL    |                |
-	| num_edits_2wk  | int(11)          | YES  |     | NULL    |                |
-	| latest_edit    | datetime         | YES  |     | NULL    |                |
-	| in_breakroom   | tinyint(1)       | YES  |     | NULL    |                |
-	| retired        | tinyint(1)       | YES  |     | NULL    |                |
-	| featured       | tinyint(1)       | YES  |     | NULL    |                |
-	| colleague      | tinyint(1)       | YES  |     | NULL    |                |
-	| has_profile    | tinyint(1)       | YES  |     | NULL    |                |
-	+----------------+------------------+------+-----+---------+----------------+	
++----------------+------------------+------+-----+---------+----------------+
+| Field          | Type             | Null | Key | Default | Extra          |
++----------------+------------------+------+-----+---------+----------------+
+| id             | int(11) unsigned | NO   | PRI | NULL    | auto_increment |
+| user_name      | varbinary(255)   | YES  | UNI | NULL    |                |
+| user_id        | int(11)          | YES  | UNI | NULL    |                |
+| user_talkpage  | int(11)          | YES  |     | NULL    |                |
+| join_date      | datetime         | YES  |     | NULL    |                |
+| last_move_date | datetime         | YES  |     | NULL    |                |
+| num_edits_2wk  | int(11)          | YES  |     | NULL    |                |
+| latest_edit    | datetime         | YES  |     | NULL    |                |
+| in_breakroom   | tinyint(1)       | YES  |     | NULL    |                |
+| retired        | tinyint(1)       | YES  |     | NULL    |                |
+| featured       | tinyint(1)       | YES  |     | NULL    |                |
+| colleague      | tinyint(1)       | YES  |     | NULL    |                |
+| has_profile    | tinyint(1)       | YES  |     | NULL    |                |
++----------------+------------------+------+-----+---------+----------------+	
 	
 ;th_up_profiles
 
