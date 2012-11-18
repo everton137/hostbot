@@ -61,7 +61,7 @@ Below is a list of editors who gained [[Wikipedia:User_access_levels#Autoconfirm
 
 wiki = wikitools.Wiki(settings.apiurl)
 wiki.login(settings.username, settings.password)
-conn = MySQLdb.connect(host = 'db67.pmtpa.wmnet', db = 'jmorgan', read_default_file = '~/.my.cnf' )
+conn = MySQLdb.connect(host = 'db67.pmtpa.wmnet', db = 'jmorgan', read_default_file = '~/.my.cnf', use_unicode=1, charset="utf8" )
 cursor = conn.cursor()
 
 
@@ -96,7 +96,7 @@ WHERE pl_namespace = 4
 AND pl_from = %s 
 AND pl_title = "Teahouse"
 LIMIT 1;
-''' % user_talkpage)
+''', (user_talkpage,))
 	invite_link_check = cursor2.fetchall()
 	if not invite_link_check:
 		pass
@@ -105,7 +105,7 @@ LIMIT 1;
 		if len(teahouse_link) > 0:
 			cursor2.execute('''
 	update th_up_invitees set invite_status = 1 where invite_status = 0 and user_talkpage = %s;
-	''' % user_talkpage)
+	''', (user_talkpage,))
 			conn.commit()
 	cursor2.close()		
 

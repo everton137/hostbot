@@ -21,7 +21,7 @@ import settings
 
 wiki = wikitools.Wiki(settings.apiurl)
 wiki.login(settings.username, settings.password)
-conn = MySQLdb.connect(host = 'db67.pmtpa.wmnet', db = 'jmorgan', read_default_file = '~/.my.cnf' )
+conn = MySQLdb.connect(host = 'db67.pmtpa.wmnet', db = 'jmorgan', read_default_file = '~/.my.cnf', use_unicode=1, charset="utf8" )
 cursor = conn.cursor()
 
 ##OUTPUT COMPONENTS##
@@ -58,11 +58,11 @@ section = u'''
 ##FUNCTIONS##
 #gets the numeric month and year, and num days in month
 def getMonthData(interval, cursor):
-	cursor.execute('''select month(date_sub(now(), Interval %d month)), year(date_sub(now(), Interval %d month))''' % (interval, interval))
+	cursor.execute('''select month(date_sub(now(), Interval %d month)), year(date_sub(now(), Interval %d month))''', (interval, interval))
 	row = cursor.fetchone()	
 	month = int(row[0])
 	year = int(row[1])
-	cursor.execute('''select distinct day(last_day(post_date)) from th_up_questions where month(post_date) = %d and year(post_date) = %d''' % (month, year))
+	cursor.execute('''select distinct day(last_day(post_date)) from th_up_questions where month(post_date) = %d and year(post_date) = %d''', (month, year))
 	row = cursor.fetchone()		
 	days = int(row[0])	
 	

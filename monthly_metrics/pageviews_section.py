@@ -42,7 +42,7 @@ null_dates = ["2012-02-29","2012-02-30","2012-02-31","2012-04-31","2012-06-31","
 ##FUNCTIONS##
 #gets the numeric month and year, and num days in month
 def getMonthData(interval, cursor):
-	cursor.execute('''select month(date_sub(now(), Interval %d month)), year(date_sub(now(), Interval %d month))''' % (interval, interval))
+	cursor.execute('''select month(date_sub(now(), Interval %d month)), year(date_sub(now(), Interval %d month))''', (interval, interval))
 	row = cursor.fetchone()	
 	month = str(row[0])
 	year = str(row[1])
