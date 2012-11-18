@@ -20,17 +20,25 @@ import wikitools
 import settings
 import os
 from random import choice
+from datetime import datetime
 import urllib2 as u2
 import urllib
 import re
+import logging
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 wiki = wikitools.Wiki(settings.apiurl)
 wiki.login(settings.username, settings.password)
 conn = MySQLdb.connect(host = 'db67.pmtpa.wmnet', db = 'jmorgan', read_default_file = '~/.my.cnf', use_unicode=1, charset="utf8" )
 cursor = conn.cursor()
 
+logging.basicConfig(filename='teahouse/hostbot_scripts/logs/invites.log',level=logging.INFO)
+
 ##GLOBAL VARIABLES##
-page_namespace = u'User_talk:'
+curtime = str(datetime.utcnow())
+page_namespace = 'User_talk:'
 headers = { 'User-Agent' : 'HostBot (http://github.com/jtmorgan/hostbot; jtmorgan25@gmail.com)' }
 
 # lists to track who received a hostbot invite
@@ -52,6 +60,12 @@ skip_templates = ['uw-vandalism4', 'uw-socksuspect', 'Socksuspectnotice', 'Uw-so
 
 #gets a list of today's editors to invite
 def getUsernames(cursor):
+# 	cursor.execute('''
+# 	SELECT
+# 	user_name, user_talkpage
+# 	FROM th_up_invitees
+# 	WHERE user_id = 17870762
+# 	''')
 	cursor.execute('''
 	SELECT
 	user_name, user_talkpage
@@ -75,7 +89,7 @@ def select_host(curHosts):
 def talkpageCheck(guest, header):
 	skip_test = False
 	try:
-		tp = wikitools.Page(wiki, 'User talk:'+guest)
+		tp = wikitools.Page(wiki, 'User talk:' + guest)
 		contents = unicode(tp.getWikiText(), 'utf8')
 		for template in skip_templates:
 			if template in contents:
@@ -84,9 +98,10 @@ def talkpageCheck(guest, header):
 		if not allowed:
 			skip_test = True		
 	except:
-		skip_test = True	
+		logging.info('Guest ' + guest + ' failed on talkpageCheck ' + curtime)
 
 	return skip_test
+
 
 ##checks for exclusion compliance, per http://en.wikipedia.org/wiki/Template:Bots
 def allow_bots(text, user):
@@ -95,27 +110,39 @@ def allow_bots(text, user):
 #invites guests		
 def inviteGuests(cursor):
 	for invitee in invite_list:
-		invitee = MySQLdb.escape_string(invitee)
 		host = select_host(curHosts)
 		invite_title = page_namespace + invitee
 		invite_page = wikitools.Page(wiki, invite_title)
 		invite_text = invite_template % (host, host, '|signature=~~~~')
 		invite_text = invite_text.encode('utf-8')
-		invite_page.edit(invite_text, section="new", sectiontitle="== {{subst:PAGENAME}}, you are invited to the Teahouse ==", summary="Automatic invitation to visit [[WP:Teahouse]] sent by [[User:HostBot|HostBot]]", bot=1)	
-		cursor.execute('''update jmorgan.th_up_invitees set invite_status = 1, hostbot_invite = 1, hostbot_personal = 1 where user_name = %s ''', (invitee,))
-		conn.commit()			
+		try:
+			invite_page.edit(invite_text, section="new", sectiontitle="== {{subst:PAGENAME}}, you are invited to the Teahouse ==", summary="Automatic invitation to visit [[WP:Teahouse]] sent by [[User:HostBot|HostBot]]", bot=1)
+		except:
+			logging.info('Guest ' + invitee + ' failed on invitation ' + curtime)
+			continue
+		try:
+# 			invitee = MySQLdb.escape_string(invitee)	
+			cursor.execute('''update jmorgan.th_up_invitees set invite_status = 1, hostbot_invite = 1, hostbot_personal = 1 where user_name = %s ''', (invitee,))
+			conn.commit()	
+		except UnicodeDecodeError:
+			logging.info('Guest ' + invitee + ' failed on invite db update due to UnicodeDecodeError ' + curtime)
+			continue
 
+			
 #records the users who were skipped
 def recordSkips(cursor):
 	for skipped in skip_list:
-		skipped = MySQLdb.escape_string(skipped)
-		cursor.execute('''update jmorgan.th_up_invitees set hostbot_skipped = 1 where user_name = %s ''' , (skipped,))
-		conn.commit()
-
+		try:
+# 			skipped = MySQLdb.escape_string(skipped)
+			cursor.execute('''update jmorgan.th_up_invitees set hostbot_skipped = 1 where user_name = %s ''', (skipped,))
+			conn.commit()
+		except:
+			logging.info('Guest ' + invitee + ' failed on skip db update ' + curtime)
+			continue
+	
 
 ##MAIN##
 rows = getUsernames(cursor)
-
 for row in rows:
 	has_template = False
 	guest = row[0]
@@ -127,7 +154,6 @@ for row in rows:
 		skip_list.append(guest)
 	else:		
 		invite_list.append(guest)
-
 inviteGuests(cursor)
 recordSkips(cursor)	
 
