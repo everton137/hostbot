@@ -119,3 +119,51 @@ This table logs the activity of Teahouse hosts on WP:Teahouse and its subpages, 
  | post_date     | datetime        | YES  |     | NULL    |       |
  | week          | int(11)         | YES  |     | NULL    |       |
  +---------------+-----------------+------+-----+---------+-------+
+ 
+ == /host_profiles ==
+These scripts work together to make sure that the list of profiles visible to guests on [http://en.wikipedia.org/wiki/Wikipedia:Teahouse/Hosts the host profile page] is reflective of the hosts who are currently actively participating in the Teahouse. Hosts who become inactive are moved to the  [http://en.wikipedia.org/wiki/Wikipedia:Teahouse/Host_breakroom host breakroom page]. Currently, a host is considered inactive if they have not edited WP:Teahouse or any of its sub- or talk-pages for at least 2 weeks. Host profiles are moved back to the [http://en.wikipedia.org/wiki/Wikipedia:Teahouse/Host_landing host landing page] (which is transcluded into Teahouse/Hosts) when they become active again, or when they check in.
+
+These scripts use the MediaWiki API.
+
+=== Scripts ===
+* <code>deactivateHosts.py</code> : Moves profiles of inactive hosts to the breakroom
+* <code>reactivateHosts.py</code> : Moves profiles of newly active hosts to the host_landing page.
+* <code>reorderHosts.py</code> : Re-orders host profiles, putting the newest and most active hosts on top.
+* <code>clearCheckins.py</code> : clears the [http://en.wikipedia.org/wiki/Wikipedia:Teahouse/Host_checkin checkins page], if not blank.
+
+
+=== Tables === 
+;Custom
+* <code>th_up_hosts</code>
+
+;Default
+* <code>enwiki.revision</code>
+
+
+ == /guest_profiles ==
+These scripts work together to make sure that the list of profiles visible to guests on [http://en.wikipedia.org/wiki/Wikipedia:Teahouse/Hosts the guest profile page] is relatively short, and contains only the profiles of the most recent visitors. Older guest profiles are moved to the  [http://en.wikipedia.org/wiki/Wikipedia:Teahouse/Guest_book guestbook page], after which [http://en.wikipedia.org/wiki/User:MiszaBot_II MiszaBot II] takes care of archiving. Currently, guest profiles are archived weekly on en.wp.teahouse, from the two sub_pages, [http://en.wikipedia.org/wiki/Wikipedia:Teahouse/Guests/Left_column Left_column] and [http://en.wikipedia.org/wiki/Wikipedia:Teahouse/Guests/Right_column Right_column], which are transcluded into [http://en.wikipedia.org/wiki/Wikipedia:Teahouse/Guests Teahouse/Guests].
+
+These scripts use the MediaWiki API.
+
+=== Scripts ===
+* <code>archiveGuestsLeft.py</code> : Moves older guest profiles to the guestbook.
+* <code>archiveGuestsRight.py</code> : Moves moves older guest profiles to the guest book.
+
+=== Tables === 
+None
+
+
+ == /featured_content ==
+These scripts work together to push recent content to the [http://en.wikipedia.org/wiki/Wikipedia:Teahouse Teahouse front page]. 
+
+These scripts use the MediaWiki API.
+
+=== Scripts ===
+* <code>featuredGuests.py</code> : Grabs relevant fields from the profiles of recent guests on [http://en.wikipedia.org/wiki/Wikipedia:Teahouse/Guests/Left_column Left_column] and [http://en.wikipedia.org/wiki/Wikipedia:Teahouse/Guests/Right_column Right_column] and adds them to sub-pages of [http://en.wikipedia.org/wiki/Wikipedia:Teahouse/Guest/Featured the featured guest index], overwriting the previous set. For variety, only guest profiles with a custom image are selected.
+* <code>featuredHosts.py</code> : Grabs relevant fields from the profiles of recently-joined and highly-active hosts on [http://en.wikipedia.org/wiki/Wikipedia:Teahouse/Hosts/Host_landing the host_landing page] and adds them to sub-pages of [http://en.wikipedia.org/wiki/Wikipedia:Teahouse/Host/Featured the featured host index], overwriting the previous set.
+* <code>recentQuestions.py</code> : Grabs up to five questions asked on the [http://en.wikipedia.org/wiki/Wikipedia:Teahouse/Questions Teahouse/Questions page] from the last two days and adds them to sub-pages of [http://en.wikipedia.org/wiki/Wikipedia:Teahouse/Questions-recent Teahouse/Questions-recent], overwriting the previous set.
+
+
+=== Tables === 
+;Default
+* <code>enwiki.revision</code>
