@@ -21,7 +21,6 @@ import settings
 import os
 from random import choice
 from datetime import datetime
-import urllib2 as u2
 import urllib
 import re
 import logging
